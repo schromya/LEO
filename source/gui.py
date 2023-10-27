@@ -436,6 +436,7 @@ class ApplicationWindow(QWidget):
 	def enableGMLCapture(self):
 		try:
 			self.myPipeConn.send("enableGMLCapture")
+
 		except EOFError:
 			print('enable capture did not work')
 

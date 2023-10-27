@@ -20,6 +20,7 @@
 
 # used to make program faster & responsive
 import threading as td
+import os
 
 # memory aligned arrays their manipulation for Python
 import numpy as np
@@ -136,6 +137,7 @@ class Simulation():
 			captureGML=False,
 			groundPtsFile='city_data.txt',
 			gmlImportFileName=None):
+		
 
 		if gmlImportFileName is not None:
 			# try to import the given file as a networkX graph
@@ -265,6 +267,10 @@ class Simulation():
 				return
 
 		else:  # if gmlImportFileName is None
+
+			# Create gmls path
+			if not os.path.exists("gmls"):
+				os.makedirs("gmls")
 
 			# constillation structure information
 			self.num_planes = planes
