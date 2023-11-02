@@ -135,7 +135,7 @@ class Simulation():
 			captureImages=False,
 			captureInterpolation=1,
 			captureGML=False,
-			groundPtsFile='city_data.txt',
+			groundPtsFile= os.path.abspath(__file__).rsplit('/',1)[0] + '/city_data.txt',
 			gmlImportFileName=None):
 		
 
