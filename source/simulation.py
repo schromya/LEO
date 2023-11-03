@@ -243,6 +243,9 @@ class Simulation():
 				self.model.setConstillationTime(self.current_simulation_time)
 
 				self.model.calculatePlusGridLinks(self.max_stg_distance, max_isl_range=self.max_isl_distance)
+				
+				self.model.calculateExtendedPlusGridLinks(self.max_stg_distance, max_isl_range=self.max_isl_distance)
+
 
 			print('test2')
 			# so, after much effort it appears that I cannot control an
@@ -293,7 +296,7 @@ class Simulation():
 			self.capture_images = captureImages
 			self.capt_interpolation = 1
 			self.make_links = makeLinks
-			self.linking_method = 'SPARSE'  # options: 'IDEAL', '+GRID', 'SPARSE'
+			self.linking_method = 'SPARSE'  # options: 'IDEAL', '+GRID', 'SPARSE', '+GRID_EXTENDED
 			self.enable_path_calculation = False
 
 			# timing control
@@ -395,6 +398,12 @@ class Simulation():
 				self.max_stg_distance,
 				initialize=True,
 				crosslink_interpolation=self.model.total_sats + 1)
+			
+		if self.linking_method == '+GRID_EXTENDED':
+			self.model.calculateExtendedPlusGridLinks(
+				self.max_stg_distance,
+				initialize=True,
+				crosslink_interpolation=1)
 
 		print("done initalizing")
 
@@ -530,6 +539,9 @@ class Simulation():
 				self.model.calculatePlusGridLinks(self.max_stg_distance, max_isl_range=self.max_isl_distance)
 			if self.linking_method == 'SPARSE':
 				self.model.calculatePlusGridLinks(self.max_stg_distance)
+				
+			if self.linking_method == '+GRID_EXTENDED':
+				self.model.calculateExtendedPlusGridLinks(self.max_stg_distance, max_isl_range=self.max_isl_distance)
 
 		self.time_to_update_model = time.time() - self.time_1
 

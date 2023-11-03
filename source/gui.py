@@ -50,7 +50,7 @@ MAKE_LINKS = True
 # if you add a new network design (linking method)
 # this list will need to be updated for it to appear
 # in the GUI
-NETWORK_DESIGNS = ["SPARSE", "+GRID", "IDEAL"]
+NETWORK_DESIGNS = ["SPARSE", "+GRID", "IDEAL", "+GRID_EXTENDED"]
 
 # button styles:
 

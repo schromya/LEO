@@ -1002,6 +1002,134 @@ class Constellation():
 				self.number_of_gnd_links = link_idx - self.number_of_isl_links
 				self.total_links = link_idx
 
+
+	def calculateExtendedPlusGridLinks(
+			self,
+			max_stg_range,
+			max_isl_range=(2**31)-1,
+			initialize=False,
+			crosslink_interpolation=1):
+		"""
+		connect satellites in a +grid_extended network where the 2nd closest 4 satellites form a grid
+
+		Parameters
+		----------
+		max_stg_range : int
+			the max space-ground coms range
+		initialize : bool
+			Because PlusGrid ISL are static, they only need to be generated once,
+			If initialize=False, only update link distances, do not regererate
+		crosslink_interpolation : int
+			This value is used to make only 1 out of every crosslink_interpolation
+			satellites able to have crosslinks. For example, with a interpolation
+			value of '2', only every other satellite will have crosslinks, the rest
+			will have only intra-plane links
+
+		"""
+
+		# TODO:split this into two functions:
+		# initialize_plus_grid_links()
+		# 	just inits plus grid links, does not calculate distances
+		# update_link_distances()
+		# 	just goes through existing links and recalculates distances
+		# 	same as calling this with initialize=false
+
+		if initialize:
+			self.number_of_isl_links = 0
+
+			link_idx = 0
+
+			# add the intra-plane links
+			for plane in range(self.number_of_planes):
+				for node in range(self.nodes_per_plane):
+					node_1 = node + (plane * self.nodes_per_plane)
+					if node == self.nodes_per_plane - 2:
+						node_2 = plane * self.nodes_per_plane
+					elif node == self.nodes_per_plane - 1:
+						node_2 = plane * self.nodes_per_plane + 1
+					else:
+						node_2 = node + (plane * self.nodes_per_plane) + 2
+
+					if link_idx < self.link_array_size - 1:
+						self.link_array[link_idx]['node_1'] = np.int16(node_1)
+						self.link_array[link_idx]['node_2'] = np.int16(node_2)
+						link_idx = link_idx + 1
+					else:
+						print('ERROR! ran out of room in the link array for intra-plane links')
+						return
+			# add the cross-plane links
+			for plane in range(self.number_of_planes):
+				if plane == self.number_of_planes - 2:
+					plane2 = 0
+				elif plane == self.number_of_planes - 1:
+					plane2 = 1
+				else:
+					plane2 = plane + 2
+				for node in range(self.nodes_per_plane):
+					node_1 = node + (plane * self.nodes_per_plane)
+					node_2 = node + (plane2 * self.nodes_per_plane)
+					if link_idx < self.link_array_size - 1:
+						if (node_1 + 1) % crosslink_interpolation == 0:
+							self.link_array[link_idx]['node_1'] = np.int16(node_1)
+							self.link_array[link_idx]['node_2'] = np.int16(node_2)
+							link_idx = link_idx + 1
+					else:
+						print('ERROR! ran out of room in the link array for cross-plane links')
+						return
+
+			self.number_of_isl_links = link_idx
+
+		link_idx = self.number_of_isl_links
+
+		# update ISL link distances
+		for isl_idx in range(self.number_of_isl_links):
+			sat_1 = self.link_array[isl_idx]['node_1']
+			sat_2 = self.link_array[isl_idx]['node_2']
+			d = int(math.sqrt(
+				math.pow(self.satellites_array[sat_1]['x'] -
+								self.satellites_array[sat_2]['x'], 2) +
+				math.pow(self.satellites_array[sat_1]['y'] -
+								self.satellites_array[sat_2]['y'], 2) +
+				math.pow(self.satellites_array[sat_1]['z'] -
+								self.satellites_array[sat_2]['z'], 2)))
+			if d > max_isl_range:
+				self.link_array[isl_idx]['node_1'] = np.int16(0)
+				self.link_array[isl_idx]['node_2'] = np.int16(0)
+				self.link_array[isl_idx]['distance'] = np.int32(0)
+			else:
+				self.link_array[isl_idx]['distance'] = np.int32(d)
+
+		# add the StG links
+		for gnd_idx in range(-self.ground_node_counter):
+			gnd_pos = [
+				self.groundpoints_array[gnd_idx]['x'],
+				self.groundpoints_array[gnd_idx]['y'],
+				self.groundpoints_array[gnd_idx]['z']
+			]
+
+			for sat_idx in range(self.total_sats):
+				# calculate distance
+				d = int(math.sqrt(
+					math.pow(self.satellites_array[sat_idx]['x'] - gnd_pos[0], 2) +
+					math.pow(self.satellites_array[sat_idx]['y'] - gnd_pos[1], 2) +
+					math.pow(self.satellites_array[sat_idx]['z'] - gnd_pos[2], 2)))
+
+				# deicide if link is valid or not
+				if d < max_stg_range:
+					if link_idx < self.link_array_size - 1:
+						gnd_id = self.groundpoints_array[gnd_idx]['ID']
+						sat_id = self.satellites_array[sat_idx]['ID']
+						self.link_array[link_idx]['node_1'] = gnd_id
+						self.link_array[link_idx]['node_2'] = sat_id
+						self.link_array[link_idx]['distance'] = np.int32(d)
+						link_idx = link_idx + 1
+					else:
+						print('ERROR! ran out of room in the link array')
+						return
+
+			self.number_of_gnd_links = link_idx - self.number_of_isl_links
+			self.total_links = link_idx
+
 	@staticmethod
 	@numba.jit(nopython=True)
 	def numba_calculatePlusGridLinks(
