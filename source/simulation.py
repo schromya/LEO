@@ -138,6 +138,9 @@ class Simulation():
 			groundPtsFile='city_data.txt',
 			gmlImportFileName=None):
 		
+		# Clear path log file
+		with open('path_log.txt', 'w') as f:
+			f.write("")
 
 		if gmlImportFileName is not None:
 			# try to import the given file as a networkX graph
@@ -146,6 +149,7 @@ class Simulation():
 			except FileNotFoundError as error:
 				print("ERROR! tried to import gml file, file not found\n", error)
 				return None
+
 
 			# assuming gml import worked, we extract the simulation
 			# structure data like time, num-planes, inclination... etc
@@ -162,6 +166,8 @@ class Simulation():
 			self.path_node_2 = None
 			self.path_length = 0.0
 			self.path_links = None
+			self.previous_path_links = None
+			self.changed_path_count = 0
 			self.max_node_degree = -1
 
 			# control flags
@@ -288,6 +294,8 @@ class Simulation():
 			self.path_node_2 = None
 			self.path_length = 0.0
 			self.path_links = None
+			self.previous_path_links = None
+			self.changed_path_count = 0
 			self.max_node_degree = -1
 
 			# control flags
@@ -579,13 +587,17 @@ class Simulation():
 					for i in range(len(path)-1):
 						self.path_links.append([path[i], path[i+1]])
 
-					print(self.path_links)
+					if self.path_links != self.previous_path_links:
+						self.changed_path_count += 1
+					self.previous_path_links = self.path_links
+
 					total_distance = 0
 					for link in self.path_links:
 						distance = self.model.calculate_distance(link[0], link[1])
-						print(distance)
 						total_distance += distance
-					print("Total:", total_distance)
+
+					with open('path_log.txt', 'a') as f:
+						f.write(f"Iteration: {self.frameCount} | Total Distance: {total_distance} | Changed Path Count: {self.changed_path_count} | Path: {self.path_links}\n")
 
 
 				except nx.exception.NetworkXNoPath:
