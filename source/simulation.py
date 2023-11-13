@@ -579,6 +579,15 @@ class Simulation():
 					for i in range(len(path)-1):
 						self.path_links.append([path[i], path[i+1]])
 
+					print(self.path_links)
+					total_distance = 0
+					for link in self.path_links:
+						distance = self.model.calculate_distance(link[0], link[1])
+						print(distance)
+						total_distance += distance
+					print("Total:", total_distance)
+
+
 				except nx.exception.NetworkXNoPath:
 					print("path does not exist...")
 					self.path_links = None

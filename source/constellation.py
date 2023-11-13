@@ -1300,3 +1300,24 @@ class Constellation():
 
 		self.number_of_gnd_links = link_idx - self.number_of_isl_links
 		self.total_links = link_idx
+
+	def calculate_distance(self, init_point_id, final_point_id):
+		init_point_id = int(init_point_id)
+		final_point_id = int(final_point_id)
+
+		def get_location(point):
+			point = int(point)
+			if point > 0: # Satellite station
+				return self.satellites_array[point]['x'],  self.satellites_array[point]['y'],  self.satellites_array[point]['z']
+			else: # Ground Station
+				return self.groundpoints_array[-point - 1]['x'],  self.groundpoints_array[-point - 1]['y'],  self.groundpoints_array[-point - 1]['z']
+			
+		init_x, init_y, init_z = get_location(init_point_id)
+		final_x, final_y, final_z = get_location(final_point_id)
+
+
+		distance = int(math.sqrt(
+			math.pow(init_x - final_x, 2) +
+			math.pow(init_y - final_y, 2) +
+			math.pow(init_z - final_z, 2)))
+		return distance
