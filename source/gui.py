@@ -104,25 +104,25 @@ class ApplicationWindow(QWidget):
 		self.input.setSpacing(5)  # space between fields
 
 		self.planesLabel = QLabel("Number of Planes:")
-		self.planesEdit = QLineEdit("3")
+		self.planesEdit = QLineEdit("72")
 		self.planesEdit.setToolTip('int')
 		self.input.addWidget(self.planesLabel, 1, 0)
 		self.input.addWidget(self.planesEdit,  1, 1)
 
 		self.nodesLabel = QLabel("Number of Nodes/Plane:")
-		self.nodesEdit = QLineEdit("12")
+		self.nodesEdit = QLineEdit("20")
 		self.nodesEdit.setToolTip("int")
 		self.input.addWidget(self.nodesLabel, 2, 0)
 		self.input.addWidget(self.nodesEdit,  2, 1)
 
 		self.incLabel = QLabel("Plane inclination (deg):")
-		self.incEdit = QLineEdit("65.0")
+		self.incEdit = QLineEdit("53.0")
 		self.incEdit.setToolTip('float')
 		self.input.addWidget(self.incLabel, 3, 0)
 		self.input.addWidget(self.incEdit,  3, 1)
 
 		self.smaLabel = QLabel("Orbit Altitude (Km):")
-		self.smaEdit = QLineEdit(str(int(500)))
+		self.smaEdit = QLineEdit(str(int(550)))
 		self.smaEdit.setToolTip('int')
 		self.input.addWidget(self.smaLabel, 4, 0)
 		self.input.addWidget(self.smaEdit,  4, 1)
@@ -204,7 +204,7 @@ class ApplicationWindow(QWidget):
 
 		# controls for running for a set time
 		self.runforLabel = QLabel("Run For (seconds):")
-		self.runforEdit = QLineEdit(str(int(60)))
+		self.runforEdit = QLineEdit(str(int(120)))
 		self.runforEdit.setToolTip('int')
 		self.runforButton = QPushButton("Run!")
 		self.runforButton.setToolTip('click to run the simulation for a set time')

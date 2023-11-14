@@ -1,4 +1,5 @@
 name lat lon
+Anchorage 61.217381 -149.863129
 CNU 37.0639 -76.4947
 Aberdeen 57.15 -2.15
 Adelaide -34.916666666666664 138.6
