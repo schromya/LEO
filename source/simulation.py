@@ -53,8 +53,8 @@ except ModuleNotFoundError:
 
 EARTH_RADIUS = 6371000  # radius of Earth in meters
 
-PNG_OUTPUT_PATH = "pics/p"  # where to save images of the animation
-GML_OUTPUT_PATH = 'gmls/g'  # where to save gml files
+
+
 
 MIN_SAT_ELEVATION = 30  # degrees
 
@@ -138,10 +138,6 @@ class Simulation():
 			groundPtsFile='city_data.txt',
 			gmlImportFileName=None):
 		
-		# Clear path log file
-		with open('path_log.txt', 'w') as f:
-			f.write("")
-
 		if gmlImportFileName is not None:
 			# try to import the given file as a networkX graph
 			try:
@@ -276,10 +272,6 @@ class Simulation():
 				return
 
 		else:  # if gmlImportFileName is None
-
-			# Create gmls path
-			if not os.path.exists("gmls"):
-				os.makedirs("gmls")
 
 			# constillation structure information
 			self.num_planes = planes
@@ -596,8 +588,18 @@ class Simulation():
 						distance = self.model.calculate_distance(link[0], link[1])
 						total_distance += distance
 
-					with open('path_log.txt', 'a') as f:
-						f.write(f"Iteration: {self.frameCount} | Total Distance: {total_distance} | Changed Path Count: {self.changed_path_count} | Path: {self.path_links}\n")
+					path = f"data/{self.path_node_1}-{self.path_node_2}/{self.linking_method}/"
+					if not os.path.exists(path):
+						os.makedirs(path)
+					file = path + "path_log.txt"
+
+					# If file is empty, write the header
+					if not os.path.isfile(file):
+						with open( file, 'w') as f:
+							f.write(f"Iteration, Total Distance, Hop Count, Changed Path Count, Path\n")
+
+					with open( file, 'a') as f:
+						f.write(f"{self.frameCount}, {total_distance}, {len(self.path_links)}, {self.changed_path_count}, {self.path_links}\n")
 
 
 				except nx.exception.NetworkXNoPath:
@@ -607,7 +609,13 @@ class Simulation():
 		# TODO:figure out the max number of links per sat in ideal case
 
 		if self.capture_gml and self.frameCount % self.capt_interpolation == 0:
-			file_name = GML_OUTPUT_PATH+"_"+getFileNumber(self.frameCount)+".gml"
+			# Create gmls path
+			path = f"data/{self.path_node_1}-{self.path_node_2}/{self.linking_method}/gmls/"
+			if not os.path.exists(path):
+				os.makedirs(path)
+
+
+			file_name = path +getFileNumber(self.frameCount)+".gml"
 			self.model.exportGMLFile(file_name)
 
 		self.time_to_export_gml = time.time() -\
@@ -806,7 +814,12 @@ class Simulation():
 		if self.capture_images \
 		   and self.frameCount % self.capt_interpolation == 0\
 		   and not self.pause:
-			self.renderToPng()
+
+			path = f"data/{self.path_node_1}-{self.path_node_2}/{self.linking_method}/pics/"
+			if not os.path.exists(path):
+				os.makedirs(path)
+
+			self.renderToPng(path)
 
 		if not self.pause:
 			self.time_to_export_img = (time.time() - self.time_1) -\
@@ -816,7 +829,7 @@ class Simulation():
 			self.time_for_frame = time.time() - self.time_1
 			self.statusReport()
 
-	def renderToPng(self, path=PNG_OUTPUT_PATH):
+	def renderToPng(self, path):
 		"""
 		Take a .png of the render window, and save it.
 
@@ -840,7 +853,7 @@ class Simulation():
 		pngfile.SetInputConnection(w2i.GetOutputPort())
 
 		# name the file with 7 digit int, leading zeros
-		pngfile.SetFileName(path + "_" + getFileNumber(self.frameCount) + ".png")
+		pngfile.SetFileName(path + getFileNumber(self.frameCount) + ".png")
 		pngfile.Write()
 
 	def makeRenderWindow(self):

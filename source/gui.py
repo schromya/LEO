@@ -116,7 +116,7 @@ class ApplicationWindow(QWidget):
 		self.input.addWidget(self.nodesEdit,  2, 1)
 
 		self.incLabel = QLabel("Plane inclination (deg):")
-		self.incEdit = QLineEdit("53.0")
+		self.incEdit = QLineEdit("70.0")
 		self.incEdit.setToolTip('float')
 		self.input.addWidget(self.incLabel, 3, 0)
 		self.input.addWidget(self.incEdit,  3, 1)
@@ -204,7 +204,7 @@ class ApplicationWindow(QWidget):
 
 		# controls for running for a set time
 		self.runforLabel = QLabel("Run For (seconds):")
-		self.runforEdit = QLineEdit(str(int(120)))
+		self.runforEdit = QLineEdit(str(int(600)))
 		self.runforEdit.setToolTip('int')
 		self.runforButton = QPushButton("Run!")
 		self.runforButton.setToolTip('click to run the simulation for a set time')
