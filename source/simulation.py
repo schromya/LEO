@@ -163,7 +163,6 @@ class Simulation():
 			self.path_length = 0.0
 			self.path_links = None
 			self.previous_path_links = None
-			self.changed_path_count = 0
 			self.max_node_degree = -1
 
 			# control flags
@@ -579,8 +578,9 @@ class Simulation():
 					for i in range(len(path)-1):
 						self.path_links.append([path[i], path[i+1]])
 
+					path_changed = 0
 					if self.path_links != self.previous_path_links:
-						self.changed_path_count += 1
+						path_changed = 1  # True
 					self.previous_path_links = self.path_links
 
 					total_distance = 0
@@ -591,15 +591,15 @@ class Simulation():
 					path = f"data/{self.path_node_1}-{self.path_node_2}/{self.linking_method}/"
 					if not os.path.exists(path):
 						os.makedirs(path)
-					file = path + "path_log.txt"
+					file = path + "path_log.csv"
 
 					# If file is empty, write the header
 					if not os.path.isfile(file):
 						with open( file, 'w') as f:
-							f.write(f"Iteration, Total Distance, Hop Count, Changed Path Count, Path\n")
+							f.write(f"Iteration, Total Distance, Hop Count, Path Changed?, Path\n")
 
 					with open( file, 'a') as f:
-						f.write(f"{self.frameCount}, {total_distance}, {len(self.path_links)}, {self.changed_path_count}, {self.path_links}\n")
+						f.write(f"{self.frameCount}, {total_distance}, {len(self.path_links)}, {path_changed}, {self.path_links}\n")
 
 
 				except nx.exception.NetworkXNoPath:
